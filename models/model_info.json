@@ -1,0 +1,7 @@
+{
+  "name": "Iris_Model",
+  "version": 2,
+  "n_estimators": 50,
+  "accuracy": 0.9,
+  "trained_at": "2026-11-01T18:18:13+00:00"
+}

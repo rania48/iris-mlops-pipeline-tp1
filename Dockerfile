@@ -7,7 +7,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
+COPY models ./models
 
-RUN mkdir -p models
+EXPOSE 5000
 
-CMD ["sh", "-c", "python src/train.py && python src/predict.py && python src/drift.py"]
+CMD ["python", "src/api.py"]

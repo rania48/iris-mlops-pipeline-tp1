@@ -1,0 +1,5 @@
+,moyenne_ref,moyenne_new,std_ref,std_new,min_ref,min_new,max_ref,max_new,score_drift,alerte
+sepal length (cm),5.843,5.842,0.828,0.832,4.3,4.23,7.9,7.97,0.002,False
+sepal width (cm),3.057,3.055,0.436,0.437,2.0,2.0,4.4,4.38,0.004,False
+petal length (cm),3.758,4.885,1.765,2.292,1.0,1.33,6.9,9.0,0.638,True
+petal width (cm),1.199,1.558,0.762,0.989,0.1,0.06,2.5,3.27,0.471,False
