@@ -89,6 +89,8 @@ Si PowerShell bloque l'activation :
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
+Dans l'invite de commandes (cmd), l'activation se fait avec `.venv\Scripts\activate.bat`.
+
 ## Utilisation
 
 Lancer les commandes dans cet ordre, depuis la racine du projet :
@@ -114,7 +116,7 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
 Puis ouvrir <http://127.0.0.1:5001>.
 
 - **Experiments → Iris_MLOps** : les runs `RF_50`, `RF_100` et `RF_200` avec leurs paramètres et métriques.
-- **Model training → Models → Iris_Model** : les versions du modèle et l'alias `champion` (accès direct : <http://127.0.0.1:5001/#/models/Iris_Model>).
+- **Model training → Model registry → Iris_Model** : les versions du modèle et l'alias `champion` (accès direct : <http://127.0.0.1:5001/#/models/Iris_Model>).
 
 > Le port `5001` évite le conflit avec l'API, qui utilise le port `5000`.
 
