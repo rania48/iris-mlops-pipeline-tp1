@@ -32,6 +32,7 @@ flowchart LR
 - [Docker](#docker)
 - [Résultats](#résultats)
 - [Synthèse Data Drift](#synthèse-data-drift)
+- [TP MLflow : comparaison et registry](#tp-mlflow--comparaison-et-registry)
 - [Tests et CI](#tests-et-ci)
 - [DevOps et MLOps](#devops-et-mlops)
 
@@ -43,6 +44,7 @@ flowchart LR
 | Suivi | Paramètres, métriques et modèles dans MLflow | `src/train.py` |
 | Registry | Meilleur modèle enregistré avec l'alias `champion` | `src/train.py` |
 | Prédiction | Depuis le fichier local ou depuis le registry | `src/predict.py`, `src/predict_registry.py` |
+| Comparaison | 5 modèles comparés et 2 versions enregistrées | `src/tp_mlflow_iris.py` |
 | API | `/`, `/health`, `/version`, `/predict` | `src/api.py` |
 | Docker | Image contenant l'API et le modèle | `Dockerfile` |
 | Monitoring | Comparaison des statistiques et alerte de drift | `src/drift.py` |
@@ -61,6 +63,7 @@ mlops-tp1/
 │   ├── train.py                     # Entraînement, MLflow, registry
 │   ├── predict.py                   # Prédiction avec le fichier .pkl
 │   ├── predict_registry.py          # Prédiction avec le registry
+│   ├── tp_mlflow_iris.py            # Comparaison de modèles et registry
 │   ├── api.py                       # API Flask
 │   └── drift.py                     # Détection du drift
 ├── tests/                           # Tests pytest
@@ -223,6 +226,53 @@ Impact sur les classes prédites :
 - **Quel impact ?** Le modèle classe beaucoup plus de fleurs en `virginica` (de 32,7 % à 58,7 %) : ses prédictions deviennent déformées, sans qu'aucune erreur technique n'apparaisse.
 - **Quelles variables pourraient changer en production ?** Toutes les mesures, par exemple avec un nouvel instrument, une autre méthode de mesure, ou de nouvelles conditions de culture.
 - **Quand réentraîner ?** Lorsqu'une alerte de drift persiste sur de vraies données, ou que les performances baissent. Il faut d'abord vérifier les données : le drift peut venir d'un problème de capteur. Après réentraînement, la nouvelle version n'est mise en production que si elle fait mieux que `champion`.
+
+## TP MLflow : comparaison et registry
+
+Ce TP compare plusieurs modèles avec plus de métriques, puis enregistre les meilleurs dans le Model Registry.
+
+```powershell
+python src/tp_mlflow_iris.py
+```
+
+Dans MLflow :
+
+- **Experiments → TP_Iris_Classification** : les 5 runs, leurs paramètres, leurs métriques et l'artefact `iris_model`.
+- **Model registry → IrisClassifier** : les versions enregistrées et l'alias `champion`.
+
+### Résultats
+
+| Run | Train accuracy | Test accuracy | Precision | Recall | F1-score | Écart train-test |
+|---|---:|---:|---:|---:|---:|---:|
+| LogisticRegression | 0,975 | 0,967 | 0,970 | 0,967 | 0,967 | 0,008 |
+| DecisionTree_depth3 | 0,983 | 0,967 | 0,970 | 0,967 | 0,967 | 0,017 |
+| RF_100_min_samples | 0,983 | 0,967 | 0,970 | 0,967 | 0,967 | 0,017 |
+| RF_50_depth3 | 0,983 | 0,967 | 0,970 | 0,967 | 0,967 | 0,017 |
+| RF_100_depth5 | 1,000 | 0,933 | 0,933 | 0,933 | 0,933 | 0,067 |
+
+Precision, recall et F1-score sont pondérés par classe. Le tableau est aussi disponible dans `experiments/comparaison_runs_iris.csv`.
+
+![Comparaison des runs dans MLflow](docs/mlflow_comparaison_runs.jpg)
+
+### Choix du modèle
+
+Le modèle est choisi selon le **F1-score**, plutôt que l'accuracy de test. Quatre modèles sont à égalité : le départage se fait sur le plus petit écart entre train et test. **LogisticRegression** est donc retenue.
+
+![IrisClassifier dans le Model Registry](docs/mlflow_iris_classifier.jpg)
+
+| Version | Modèle | Alias |
+|---|---|---|
+| 1 | Deuxième meilleur run | |
+| 2 | LogisticRegression (meilleur run) | `champion` |
+
+### Réponses aux exercices
+
+- **`min_samples_split` et `min_samples_leaf` :** avec 4 et 2, le Random Forest passe de 0,933 à 0,967 sur le test. Ces limites simplifient les arbres et améliorent la généralisation.
+- **LogisticRegression et DecisionTree :** ils atteignent le même score de test que le meilleur Random Forest. Sur un jeu aussi simple, un modèle simple suffit.
+- **Overfitting :** `RF_100_depth5` obtient 100 % à l'entraînement, mais 93,3 % au test. C'est le plus grand écart (6,7 points), donc le signe d'un possible surapprentissage. Les autres modèles restent sous 2 points.
+- **Run ou version de modèle :** un run est une exécution d'entraînement, avec ses paramètres, ses métriques et ses artefacts. Une version de modèle est une entrée numérotée du registry, qui pointe vers le modèle d'un run choisi. Un même modèle peut donc avoir plusieurs versions, et beaucoup de runs n'en ont aucune.
+
+> **Limite :** le test ne contient que 30 fleurs et chaque erreur vaut 3,3 points. Le choix est fait ici sur le jeu de test pour illustrer la démarche. Dans un vrai projet, on choisit le modèle sur un jeu de validation et on garde le test pour l'évaluation finale.
 
 ## Tests et CI
 

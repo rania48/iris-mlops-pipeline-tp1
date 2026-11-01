@@ -1,0 +1,6 @@
+tags.mlflow.runName,metrics.train_accuracy,metrics.test_accuracy,metrics.precision,metrics.recall,metrics.f1_score,metrics.ecart_train_test
+LogisticRegression,0.975,0.9667,0.9697,0.9667,0.9666,0.0083
+DecisionTree_depth3,0.9833,0.9667,0.9697,0.9667,0.9666,0.0167
+RF_100_min_samples,0.9833,0.9667,0.9697,0.9667,0.9666,0.0167
+RF_50_depth3,0.9833,0.9667,0.9697,0.9667,0.9666,0.0167
+RF_100_depth5,1.0,0.9333,0.9333,0.9333,0.9333,0.0667

@@ -33,6 +33,9 @@ jobs:
       - name: Run prediction from Model Registry
         run: python src/predict_registry.py
 
+      - name: Compare models and register the best
+        run: python src/tp_mlflow_iris.py
+
       - name: Check data drift
         run: python src/drift.py
 
